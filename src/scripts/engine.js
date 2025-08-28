@@ -97,12 +97,13 @@ async function setCardsField(cardId) {
 
     let computerCardId = getRandomCardId();
 
-    state.fieldcards.player.style.display = "block";
-    state.fieldcards.computer.style.display = "block"; 
+    await showHiddenCardFieldsImage(true);
 
-    state.fieldcards.player.src = cardData[cardId].img;
-    state.fieldcards.computer.src = cardData[computerCardId].img;
+    await hiddenCardDetail();
 
+    // Atualiza as imagens das cartas no campo
+    await drawCardsInField( cardId, computerCardId);
+    
     // Verifica o resultado do duelo
     let duelResults = await checkDuelResult(cardId, computerCardId);
 
@@ -110,6 +111,32 @@ async function setCardsField(cardId) {
     await updateScore();
     await drawButton(duelResults)
 
+}
+
+
+async function drawCardsInField( cardId, computerCardId) {
+    state.fieldcards.player.src = cardData[cardId].img;
+    state.fieldcards.computer.src = cardData[computerCardId].img;
+
+}
+
+async function showHiddenCardFieldsImage(value) {
+    if (value === true) {
+        state.fieldcards.player.style.display = "block";
+        state.fieldcards.computer.style.display = "block";        
+    }
+    else {
+        // Esconde a imagem de pré-visualização ao iniciar/resetar o jogo
+        state.cardsSprites.avatar.style.display = "none";
+        state.fieldcards.player.style.display = "none";
+        state.fieldcards.computer.style.display = "none";    
+    }
+}
+
+async function hiddenCardDetail() {
+    state.cardsSprites.avatar.src = "";
+    state.cardsSprites.name.innerText = "";
+    state.cardsSprites.type.innerText = "";    
 }
 
 async function drawButton(text) {
@@ -171,6 +198,9 @@ async function drawSelectedCard(index) {
     state.cardsSprites.name.innerText = cardData[index].name;
     state.cardsSprites.type.innerText = "Atribute: " + cardData[index].type;
     
+    // ✅ ESTA LINHA CONTINUA CORRETA
+    // Altera a visibilidade para "block" para que a imagem apareça
+    state.cardsSprites.avatar.style.display = "block";
     
 }
 
@@ -192,9 +222,16 @@ async function playAudio (status) {
 
 // Inicia o jogo
 function init() {
+    showHiddenCardFieldsImage(false);
+    
 
     drawCards(5, state.playerSides.player1); // ← Use state.playerSides.player1
     drawCards(5, state.playerSides.computer); // ← Use state.playerSides.computer
+
+    const bgm = document.getElementById('bgm');
+    bgm.play(); 
+    
+
 }
 
 
